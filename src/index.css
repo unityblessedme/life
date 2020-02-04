@@ -1,0 +1,21 @@
+@import '~materialize-css/dist/css/materialize.min.css';
+
+.life-container {
+    display: grid;
+    grid-template-columns: repeat(10, 0fr);
+    max-width: 85vh;
+
+}
+
+.squere {
+    border: 1px solid black;
+    width: 80px;
+    height: 80px;
+    margin: auto;
+
+}
+
+.black {
+    background: #000;
+    color: white;
+}
