@@ -1,9 +1,10 @@
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import 'materialize-css'
 import { Squere } from './squere';
 
 const App = () => {
 
+	// Create initial state
 	const createInitalArr = (probability = 0.8) => {
 		let world = []
 		for(let i = 0; i < 100; i++){
@@ -12,8 +13,14 @@ const App = () => {
 		}
 		return world
 	};
-	const [world, setWorld] = useState(createInitalArr)
 
+	
+	const [world, setWorld] = useState(createInitalArr)
+	// Start/stop handler
+	const [handler, setHandler] = useState(false)
+
+
+	// Range function (linke in Python)
 	const range = (a, b, c) => {
 		let arr = [];
 		for(let i = a; i <= b; i += c){
@@ -23,9 +30,9 @@ const App = () => {
 	}
 
 	
-
-	const scanLocation = (action, i, newGen) => {
-
+	// Scan location arround selected cell
+	const scanLocation =  useCallback((action, i, newGen) => {
+		// Number of neighbours
 		let n = 0;
 
 		switch(action){
@@ -178,6 +185,9 @@ const App = () => {
 				}
 				console.log(`it is got ${n} neighboors`)
 				break;
+			
+			default:
+				return
 
 		}
 
@@ -219,9 +229,11 @@ const App = () => {
 		}
 
 
-	}
+	}, [world])
 
-	const lifeEngine = () => {
+
+	// Main map function, it is maping world arr and applyin scanLocation for each element.
+	const lifeEngine = useCallback(() => {
 		const newGen = [];
 		world.map(i => {
 			if(range(0, 9, 1).includes(i.number) ){
@@ -298,24 +310,20 @@ const App = () => {
 			else {
 				console.log(`${i.number} filtred as all`)
 				scanLocation('all', i, newGen)
-			}	
+			}
+			return true
 		
 		})
-
-			
-		setWorld(newGen,[newGen])
+		setWorld([...newGen])
 		
-	}
+	}, [world, scanLocation])
 
 	useEffect(() =>{
-		const myint = setInterval(lifeEngine, 500);
-		return () => clearInterval(myint)
-	}, [lifeEngine])
-
-	const clickHandler = () => {
-	}
-
-
+		if(handler){
+			const myint = setInterval(lifeEngine, 700);
+			return () => clearInterval(myint)
+		} else return
+	}, [lifeEngine, handler])
 
 
 	return (
@@ -326,7 +334,8 @@ const App = () => {
 				return <Squere item={item} key={idx} />
 			}) }
 			</div>
-			<button className="waves-effect waves-light btn" onClick={clickHandler}>start evolve</button>
+			<button className="waves-effect waves-light btn" onClick={() => setHandler(!handler)}>Start/Stop</button>
+			<button className="waves-effect waves-light btn" onClick={() => setWorld(createInitalArr())}>Refresh</button>
 		</div>
 		
 	)
